@@ -21,13 +21,14 @@ function App() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [expectedFood] = useState<string[]>([
-  "milk",
-  "eggs",
-  "cheese",
-  "butter",
-  "yogurt"
-]);
+  const [expectedFood, setExpectedFood] = useState<string[]>(() => {
+  const saved = localStorage.getItem("expectedFood");
+  return saved ? JSON.parse(saved) : [];
+});
+
+const [newItem, setNewItem] = useState<string>("");
+
+
 
 const [missingFood, setMissingFood] = useState<string[]>([]);
 
@@ -67,10 +68,94 @@ const [missingFood, setMissingFood] = useState<string[]>([]);
   }
 };
 
+  const addFoodItem = () => {
+  if (!newItem.trim()) return;
+
+  if (!expectedFood.includes(newItem.toLowerCase())) {
+    const updated = [...expectedFood, newItem.toLowerCase()];
+    setExpectedFood(updated);
+    localStorage.setItem("expectedFood", JSON.stringify(updated));
+  }
+
+  setNewItem("");
+};
+
+const removeFoodItem = (item: string) => {
+  const updated = expectedFood.filter(food => food !== item);
+  setExpectedFood(updated);
+  localStorage.setItem("expectedFood", JSON.stringify(updated));
+};
+
+
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px", fontFamily: "sans-serif", textAlign: "center" }}>
       <h1>🧊 Fridge Scanner</h1>
+
+      {/* Manage Expected Food List */}
+<div style={{ marginBottom: "30px", textAlign: "left" }}>
+  <h2>📋 My Fridge List</h2>
+
+  <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+    <input
+      type="text"
+      placeholder="Add food (e.g. milk)"
+      value={newItem}
+      onChange={(e) => setNewItem(e.target.value)}
+      style={{
+        flex: 1,
+        padding: "8px",
+        borderRadius: "6px",
+        border: "1px solid #ccc"
+      }}
+    />
+    <button
+      onClick={addFoodItem}
+      style={{
+        padding: "8px 12px",
+        borderRadius: "6px",
+        border: "none",
+        background: "#4caf50",
+        color: "white",
+        cursor: "pointer"
+      }}
+    >
+      Add
+    </button>
+  </div>
+
+  <ul style={{ listStyle: "none", padding: 0 }}>
+    {expectedFood.map((item, index) => (
+      <li
+        key={index}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#f1f1f1",
+          padding: "8px",
+          borderRadius: "6px",
+          marginBottom: "6px"
+        }}
+      >
+        <span>🥛 {item}</span>
+        <button
+          onClick={() => removeFoodItem(item)}
+          style={{
+            border: "none",
+            background: "transparent",
+            color: "#e53935",
+            fontSize: "1.1rem",
+            cursor: "pointer"
+          }}
+        >
+          ❌
+        </button>
+      </li>
+    ))}
+  </ul>
+</div>
+
       
       {/* Upload Button */}
       <div style={{ marginBottom: "20px", border: "2px dashed #ccc", padding: "20px", borderRadius: "10px" }}>
