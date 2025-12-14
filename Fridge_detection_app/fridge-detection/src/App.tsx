@@ -1,7 +1,7 @@
 import { useState} from 'react';
 import { useEffect } from "react";
 import type { ChangeEvent }  from 'react';
-import { ImCross } from 'react-icons/im';
+
 
 import axios from 'axios';
 import './App.css'; // Optional: You can keep or delete this file
@@ -106,20 +106,20 @@ useEffect(() => {
     return;
   }
 
-  const detectedNormalized = foodItems.map(
-    food => normalizeFoodName(food.item)
+  const detectedNormalized = foodItems.map(food =>
+    normalizeFoodName(food.item)
   );
 
-  const missing = expectedFood.filter(
-    expected =>
-      !detectedNormalized.includes(
-        normalizeFoodName(expected)
-      )
+  const missing = expectedFood.filter(expected =>
+    !detectedNormalized.includes(
+      normalizeFoodName(expected)
+    )
   );
 
   setMissingFood(missing);
 
 }, [expectedFood, foodItems]);
+
 
 
 
@@ -192,7 +192,7 @@ useEffect(() => {
             cursor: "pointer"
           }}
         >
-          <ImCross />
+          
         </button>
       </li>
     ))}
@@ -253,20 +253,21 @@ useEffect(() => {
     <h2>🛒 Missing Food</h2>
     <ul style={{ listStyle: "none", padding: 0 }}>
       {missingFood.map((item, index) => (
-        <li
-          key={index}
-          style={{
-            background: "#fff3f3",
-            color: "#666",
-            margin: "10px 0",
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #ffcccc"
-          }}
-        >
-          <ImCross style={{color : "#ff0000"}}/> <strong>{item}</strong>
-        </li>
-      ))}
+  <li
+    key={index}
+    style={{
+      background: "#fff3f3",
+      color: "#666",
+      margin: "10px 0",
+      padding: "10px",
+      borderRadius: "8px",
+      border: "1px solid #ffcccc"
+    }}
+  >
+    ❌ <strong>{item}</strong>
+  </li>
+))}
+
     </ul>
   </div>
 )}
