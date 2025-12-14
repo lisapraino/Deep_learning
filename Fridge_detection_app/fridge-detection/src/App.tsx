@@ -1,6 +1,7 @@
 import { useState} from 'react';
 import { useEffect } from "react";
 import type { ChangeEvent }  from 'react';
+import { ImCross } from 'react-icons/im';
 
 import axios from 'axios';
 import './App.css'; // Optional: You can keep or delete this file
@@ -137,6 +138,11 @@ useEffect(() => {
       placeholder="Add food (e.g. milk)"
       value={newItem}
       onChange={(e) => setNewItem(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          addFoodItem();
+        }
+      }}
       style={{
         flex: 1,
         padding: "8px",
@@ -168,12 +174,14 @@ useEffect(() => {
           justifyContent: "space-between",
           alignItems: "center",
           background: "#f1f1f1",
+          color: "#666",
           padding: "8px",
           borderRadius: "6px",
-          marginBottom: "6px"
+          marginBottom: "6px",
+          paddingLeft : "12px"
         }}
       >
-        <span>🥛 {item}</span>
+        <span>{item}</span>
         <button
           onClick={() => removeFoodItem(item)}
           style={{
@@ -184,7 +192,7 @@ useEffect(() => {
             cursor: "pointer"
           }}
         >
-          ❌
+          <ImCross />
         </button>
       </li>
     ))}
@@ -224,7 +232,7 @@ useEffect(() => {
             <li 
               key={index} 
               style={{ 
-                background: "#f9f9f9", 
+                background: "#f9f9f9",
                 margin: "10px 0", 
                 padding: "10px", 
                 borderRadius: "8px",
@@ -249,13 +257,14 @@ useEffect(() => {
           key={index}
           style={{
             background: "#fff3f3",
+            color: "#666",
             margin: "10px 0",
             padding: "10px",
             borderRadius: "8px",
             border: "1px solid #ffcccc"
           }}
         >
-          ❌ <strong>{item}</strong>
+          <ImCross style={{color : "#ff0000"}}/> <strong>{item}</strong>
         </li>
       ))}
     </ul>
