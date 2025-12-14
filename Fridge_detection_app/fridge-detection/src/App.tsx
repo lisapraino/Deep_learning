@@ -1,4 +1,5 @@
 import { useState} from 'react';
+import { useEffect } from "react";
 import type { ChangeEvent }  from 'react';
 
 import axios from 'axios';
@@ -14,6 +15,14 @@ interface ScanResponse {
   food_found: FoodItem[];
   missing_food: string[];
 }
+
+const normalizeFoodName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[_-]/g, " ")   // _ et - deviennent des espaces
+    .replace(/\s+/g, " ");  // espaces multiples → 1 seul
+};
 
 
 function App() {
@@ -58,7 +67,6 @@ const [missingFood, setMissingFood] = useState<string[]>([]);
     );
 
     setFoodItems(response.data.food_found);
-    setMissingFood(response.data.missing_food);
 
   } catch (error) {
     console.error("Error scanning image:", error);
@@ -71,8 +79,13 @@ const [missingFood, setMissingFood] = useState<string[]>([]);
   const addFoodItem = () => {
   if (!newItem.trim()) return;
 
-  if (!expectedFood.includes(newItem.toLowerCase())) {
-    const updated = [...expectedFood, newItem.toLowerCase()];
+  const normalizedNewItem = normalizeFoodName(newItem);
+
+if (!expectedFood.some(
+  item => normalizeFoodName(item) === normalizedNewItem
+)) {
+
+    const updated = [...expectedFood, normalizedNewItem];
     setExpectedFood(updated);
     localStorage.setItem("expectedFood", JSON.stringify(updated));
   }
@@ -85,6 +98,28 @@ const removeFoodItem = (item: string) => {
   setExpectedFood(updated);
   localStorage.setItem("expectedFood", JSON.stringify(updated));
 };
+
+useEffect(() => {
+  if (foodItems.length === 0) {
+    setMissingFood([]);
+    return;
+  }
+
+  const detectedNormalized = foodItems.map(
+    food => normalizeFoodName(food.item)
+  );
+
+  const missing = expectedFood.filter(
+    expected =>
+      !detectedNormalized.includes(
+        normalizeFoodName(expected)
+      )
+  );
+
+  setMissingFood(missing);
+
+}, [expectedFood, foodItems]);
+
 
 
 
