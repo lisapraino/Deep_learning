@@ -1,14 +1,16 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 from PIL import Image
 import io
 import pathlib
+import json
+
 pathlib.PosixPath = pathlib.WindowsPath
 
 app = FastAPI()
 
-# 1. CORS Setup
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,36 +19,54 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. Load your custom trained model
+# Load model
 model_path = "model_weights/best.pt"
 model = YOLO(model_path)
 
 @app.post("/scan-fridge")
-async def scan_fridge(file: UploadFile = File(...)):
-    # Read the image file uploaded by the user
+async def scan_fridge(
+    file: UploadFile = File(...),
+    expected_items: str = Form(...)
+):
+    """
+    expected_items = JSON string
+    Example: ["milk", "eggs", "cheese"]
+    """
+
+    # Convert expected items from JSON string to Python list
+    expected_items_list = json.loads(expected_items)
+    expected_items_list = [item.lower() for item in expected_items_list]
+
+    # Read image
     image_data = await file.read()
     image = Image.open(io.BytesIO(image_data))
 
-    # Run inference
+    # Run YOLO
     results = model(image)
 
-    # Process results
     detected_items = []
-    
-    # YOLO returns a list of Result objects (one per image)
+    detected_item_names = set()
+
     for result in results:
-        # Check the boxes (detections)
         for box in result.boxes:
             class_id = int(box.cls[0])
-            class_name = model.names[class_id]
+            class_name = model.names[class_id].lower()
             confidence = float(box.conf[0])
-            
-            # Add to our list (you can filter by confidence here if needed)
+
             detected_items.append({
                 "item": class_name,
                 "confidence": round(confidence, 2)
             })
 
-    # Return clean JSON to the frontend
-    # Example: {"food_found": [{"item": "milk", "confidence": 0.92}, ...]}
-    return {"food_found": detected_items}
+            detected_item_names.add(class_name)
+
+    # Compute missing items
+    missing_items = [
+        item for item in expected_items_list
+        if item not in detected_item_names
+    ]
+
+    return {
+        "food_found": detected_items,
+        "missing_food": missing_items
+    }

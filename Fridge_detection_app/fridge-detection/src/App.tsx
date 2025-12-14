@@ -12,13 +12,25 @@ interface FoodItem {
 
 interface ScanResponse {
   food_found: FoodItem[];
+  missing_food: string[];
 }
+
 
 function App() {
   // 2. Define state with types
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [expectedFood] = useState<string[]>([
+  "milk",
+  "eggs",
+  "cheese",
+  "butter",
+  "yogurt"
+]);
+
+const [missingFood, setMissingFood] = useState<string[]>([]);
+
 
   // 3. Handle file selection
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -32,21 +44,29 @@ function App() {
 
   // 4. Send image to FastAPI
   const processImage = async (file: File) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+  setLoading(true);
 
-    try {
-      // Ensure this URL matches your FastAPI terminal output (usually port 8000)
-      const response = await axios.post<ScanResponse>('http://127.0.0.1:8000/scan-fridge', formData);
-      setFoodItems(response.data.food_found);
-    } catch (error) {
-      console.error("Error scanning image:", error);
-      alert("Failed to connect to the server. Is the python backend running?");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("expected_items", JSON.stringify(expectedFood));
+
+  try {
+    const response = await axios.post<ScanResponse>(
+      "http://127.0.0.1:8000/scan-fridge",
+      formData
+    );
+
+    setFoodItems(response.data.food_found);
+    setMissingFood(response.data.missing_food);
+
+  } catch (error) {
+    console.error("Error scanning image:", error);
+    alert("Failed to connect to the server.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px", fontFamily: "sans-serif", textAlign: "center" }}>
@@ -100,6 +120,28 @@ function App() {
           ))}
         </ul>
       </div>
+      {missingFood.length > 0 && (
+  <div style={{ textAlign: "left", marginTop: "30px" }}>
+    <h2>🛒 Missing Food</h2>
+    <ul style={{ listStyle: "none", padding: 0 }}>
+      {missingFood.map((item, index) => (
+        <li
+          key={index}
+          style={{
+            background: "#fff3f3",
+            margin: "10px 0",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ffcccc"
+          }}
+        >
+          ❌ <strong>{item}</strong>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
     </div>
   );
 }
