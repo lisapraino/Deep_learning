@@ -1,5 +1,6 @@
 import { useState} from 'react';
 import type { ChangeEvent }  from 'react';
+import { ImCross } from 'react-icons/im';
 
 import axios from 'axios';
 import './App.css'; // Optional: You can keep or delete this file
@@ -102,6 +103,11 @@ const removeFoodItem = (item: string) => {
       placeholder="Add food (e.g. milk)"
       value={newItem}
       onChange={(e) => setNewItem(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          addFoodItem();
+        }
+      }}
       style={{
         flex: 1,
         padding: "8px",
@@ -133,12 +139,14 @@ const removeFoodItem = (item: string) => {
           justifyContent: "space-between",
           alignItems: "center",
           background: "#f1f1f1",
+          color: "#666",
           padding: "8px",
           borderRadius: "6px",
-          marginBottom: "6px"
+          marginBottom: "6px",
+          paddingLeft : "12px"
         }}
       >
-        <span>🥛 {item}</span>
+        <span>{item}</span>
         <button
           onClick={() => removeFoodItem(item)}
           style={{
@@ -149,7 +157,7 @@ const removeFoodItem = (item: string) => {
             cursor: "pointer"
           }}
         >
-          ❌
+          <ImCross />
         </button>
       </li>
     ))}
@@ -189,7 +197,7 @@ const removeFoodItem = (item: string) => {
             <li 
               key={index} 
               style={{ 
-                background: "#f9f9f9", 
+                background: "#f9f9f9",
                 margin: "10px 0", 
                 padding: "10px", 
                 borderRadius: "8px",
@@ -214,13 +222,14 @@ const removeFoodItem = (item: string) => {
           key={index}
           style={{
             background: "#fff3f3",
+            color: "#666",
             margin: "10px 0",
             padding: "10px",
             borderRadius: "8px",
             border: "1px solid #ffcccc"
           }}
         >
-          ❌ <strong>{item}</strong>
+          <ImCross style={{color : "#ff0000"}}/> <strong>{item}</strong>
         </li>
       ))}
     </ul>
