@@ -17,6 +17,13 @@ A deep learning-powered web application that scans images of your fridge to auto
 Navigate to server folder (where `main.py` is located).
 
 1.  **Install Dependencies:**
+    
+    Automatically from requirements.txt (Recommended):
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+    or manually:
     ```bash
     pip install fastapi uvicorn ultralytics python-multipart pillow
     ```
@@ -29,7 +36,7 @@ Navigate to server folder (where `main.py` is located).
 
 ### 2. Frontend Setup (React)
 
-Navigate to frontend folder (e.g., `fridge-detection`).
+Navigate to frontend folder.
 
 1.  **Install Node Modules:**
     ```bash
