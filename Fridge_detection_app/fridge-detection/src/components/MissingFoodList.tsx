@@ -23,8 +23,10 @@ export const MissingFoodList = ({ items }: MissingFoodListProps) => {
               border: "1px solid #ffcccc"
             }}
           >
-            <ImCross style={{ color: "#ff0000", marginRight: "8px" }} /> 
-            <strong>{item}</strong>
+            <span style={{fontSize: "1.2rem"}}>
+              <ImCross style={{ color: "#ff0000", marginRight: "8px" }} /> 
+              <strong>{item}</strong>
+            </span>
           </li>
         ))}
       </ul>

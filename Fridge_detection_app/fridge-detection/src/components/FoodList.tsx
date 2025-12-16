@@ -1,10 +1,12 @@
 import type { FoodItem } from '../types';
+import { FaCheckSquare } from "react-icons/fa";
 
 interface FoodListProps {
   items: FoodItem[];
+  expectedFood: string[];
 }
 
-export const FoodList = ({ items }: FoodListProps) => {
+export const FoodList = ({ items, expectedFood }: FoodListProps) => {
   if (items.length === 0) return null;
 
   return (
@@ -26,7 +28,10 @@ export const FoodList = ({ items }: FoodListProps) => {
             }}
           >
             <span style={{ color: "#666", fontSize: "1.2rem" }}>
-              ✅ <strong>{food.item}</strong>
+              {expectedFood.includes(food.item) && (
+                <span><FaCheckSquare color="#11b851" style={{marginRight: "8px"}}/></span>
+              )}
+              <strong>{food.item}</strong>
             </span>
             <span style={{ color: "#666", fontSize: "0.9rem" }}>
               {(food.confidence * 100).toFixed(0)}%
