@@ -1,59 +1,55 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// Types
 import type { FoodItem, ScanResponse } from './types';
 
-// Components
 import { ImageUploader } from './components/ImageUploader';
 import { ImagePreview } from './components/ImagePreview';
-import { FoodList } from './components/FoodList'; // Reuse the previous one for Detected items
-import { ExpectedFoodManager } from './components/ExpectedFoodManager'; // New
-import { MissingFoodList } from './components/MissingFoodList'; // New
+import { FoodList } from './components/FoodList';
+import { ExpectedFoodManager } from './components/ExpectedFoodManager';
+import { MissingFoodList } from './components/MissingFoodList';
 import { ReloadButton } from './components/ReloadButton';
 
+import { normalizeFoodName } from './normalizeFood';
+
 function App() {
-  // --- State ---
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [missingFood, setMissingFood] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Initialize expectedFood from localStorage
   const [expectedFood, setExpectedFood] = useState<string[]>(() => {
     const saved = localStorage.getItem("expectedFood");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // --- Handlers ---
+  /* ---------- EXPECTED FOOD ---------- */
 
-  // Add item to Expected List
   const handleAddExpected = (newItem: string) => {
-    const normalizedItem = newItem.toLowerCase();
-    if (!expectedFood.includes(normalizedItem)) {
-      const updated = [...expectedFood, normalizedItem];
+    const normalized = normalizeFoodName(newItem);
+    if (!expectedFood.includes(normalized)) {
+      const updated = [...expectedFood, normalized];
       setExpectedFood(updated);
       localStorage.setItem("expectedFood", JSON.stringify(updated));
     }
   };
 
-  // Remove item from Expected List
-  const handleRemoveExpected = (itemToRemove: string) => {
-    const updated = expectedFood.filter(item => item !== itemToRemove);
+  const handleRemoveExpected = (item: string) => {
+    const updated = expectedFood.filter(f => f !== item);
     setExpectedFood(updated);
     localStorage.setItem("expectedFood", JSON.stringify(updated));
   };
 
-  // Handle File Selection
+  /* ---------- IMAGE UPLOAD ---------- */
+
   const handleFileSelect = (file: File) => {
     setSelectedImage(URL.createObjectURL(file));
     setSelectedFile(file);
     processImage(file);
   };
 
-  // API Call
   const processImage = async (file: File) => {
     setLoading(true);
     const formData = new FormData();
@@ -61,54 +57,72 @@ function App() {
     formData.append("expected_items", JSON.stringify(expectedFood));
 
     try {
-      const response = await axios.post<ScanResponse>("http://127.0.0.1:8000/scan-fridge", formData);
+      const response = await axios.post<ScanResponse>(
+        "http://127.0.0.1:8000/scan-fridge",
+        formData
+      );
       setFoodItems(response.data.food_found);
-      setMissingFood(response.data.missing_food);
     } catch (error) {
-      console.error("Error scanning image:", error);
-      alert("Failed to connect to the server.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle reload
-  const handleReloadClick = () => {
-    if (selectedFile) {
-      processImage(selectedFile); 
-    } else {
-      alert("Please upload an image first.");
+  /* ---------- REAL-TIME MISSING FOOD ---------- */
+
+  useEffect(() => {
+    if (foodItems.length === 0) {
+      setMissingFood([]);
+      return;
     }
+
+    const detectedNormalized = foodItems.map(food =>
+      normalizeFoodName(food.item)
+    );
+
+    const missing = expectedFood.filter(
+      item => !detectedNormalized.includes(item)
+    );
+
+    setMissingFood(missing);
+  }, [foodItems, expectedFood]);
+
+  const handleReloadClick = () => {
+    if (selectedFile) processImage(selectedFile);
   };
 
+  /* ---------- UI ---------- */
+
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px", fontFamily: "sans-serif", textAlign: "center" }}>
-      <h1>🧊 Fridge Scanner</h1>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+      <h1 style={{ textAlign: "center" }}>🧊 Fridge Scanner</h1>
 
-      {/* Manage Expected Food */}
-      <ExpectedFoodManager 
-        items={expectedFood} 
-        onAdd={handleAddExpected} 
-        onRemove={handleRemoveExpected} 
-      />
-      
-      {/* Upload Component */}
-      <ImageUploader onFileSelect={handleFileSelect} disabled={loading} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 2fr",
+          gap: "30px",
+          marginTop: "30px"
+        }}
+      >
+        {/* LEFT COLUMN */}
+        <ExpectedFoodManager
+          items={expectedFood}
+          onAdd={handleAddExpected}
+          onRemove={handleRemoveExpected}
+        />
 
-      {/* Preview Component */}
-      <ImagePreview imageSrc={selectedImage} />
-
-      {/* Loading State */}
-      {loading && <p>🔍 Analyzing your fridge...</p>}
-
-      {/* Reload Button */}
-      <ReloadButton onButtonClick={handleReloadClick}/>
-
-      {/* Detected Food Results */}
-      <FoodList items={foodItems} expectedFood={expectedFood}/>
-
-      {/* Missing Food Results */}
-      <MissingFoodList items={missingFood} />
+        {/* RIGHT COLUMN */}
+        <div>
+          <ImageUploader onFileSelect={handleFileSelect} disabled={loading} />
+          <ImagePreview imageSrc={selectedImage} />
+          {loading && <p>🔍 Analyzing your fridge...</p>}
+          <ReloadButton onButtonClick={handleReloadClick} />
+          <FoodList items={foodItems} expectedFood={expectedFood} />
+          <MissingFoodList items={missingFood} />
+        </div>
+      </div>
     </div>
   );
 }
