@@ -95,14 +95,17 @@ function App() {
   };
 
   const handleAddExpiration = (item: string, date: string) => {
-  if (!date) return;
+    if (!date) return;
+    
+    setExpiringFood(prev => {
+      const updated = prev.filter(f => f.name !== item); 
+      return [...updated, { name: item, expirationDate: date }];
+    });
+  };
 
-  setExpiringFood(prev => {
-    const updated = prev.filter(f => f.name !== item); 
-    return [...updated, { name: item, expirationDate: date }];
-  });
-};
-
+  const handleRemoveExpiration = (itemName: string) => {
+    setExpiringFood(prev => prev.filter(item => item.name !== itemName));
+  };
 
   /* ---------- UI ---------- */
 
@@ -140,6 +143,7 @@ function App() {
         items={foodItems}
         expectedFood={expectedFood}
         onAddExpiration={handleAddExpiration}
+        onRemoveExpiration={handleRemoveExpiration}
       />
 
       <MissingFoodList items={missingFood} />
@@ -147,7 +151,10 @@ function App() {
 
     {/* Right Column */}
     <div>
-      <ExpirationList items={expiringFood} />
+      <ExpirationList 
+        items={expiringFood}
+        onRemoveExpiration={handleRemoveExpiration}
+      />
     </div>
   </div>
 </div>

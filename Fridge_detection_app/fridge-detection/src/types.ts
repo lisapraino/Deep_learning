@@ -10,5 +10,5 @@ export interface ScanResponse {
 
 export interface ExpiringItem {
   name: string;
-  expirationDate: string; // format ISO "2025-12-20"
+  expirationDate: string; // format "yyyy-mm-dd"
 }

@@ -1,4 +1,5 @@
 import { FaRegCalendarAlt } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 import { IoIosWarning } from "react-icons/io";
 
 interface ExpiringItem {
@@ -8,9 +9,10 @@ interface ExpiringItem {
 
 interface ExpirationListProps {
   items: ExpiringItem[];
+  onRemoveExpiration: (itemName: string) => void; 
 }
 
-export const ExpirationList = ({ items }: ExpirationListProps) => {
+export const ExpirationList = ({ items, onRemoveExpiration }: ExpirationListProps) => {
   
   const today = new Date();
 
@@ -45,6 +47,12 @@ export const ExpirationList = ({ items }: ExpirationListProps) => {
               }}
             >
               <strong style={{fontSize : "1.2rem"}}>{item.name}</strong>
+              <button
+                onClick={() => onRemoveExpiration(item.name)}
+                style={{ border: "none", background: "transparent", color: "#e53935", fontSize: "1.1rem", cursor: "pointer" }}
+              >
+                <ImCross />
+              </button>
               <br />
               Expires on: {item.expirationDate}
             </li>

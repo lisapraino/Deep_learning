@@ -6,9 +6,10 @@ interface FoodListProps {
   items: FoodItem[];
   expectedFood: string[];
   onAddExpiration: (item: string, date: string) => void;
+  onRemoveExpiration: (itemName: string) => void;
 }
 
-export const FoodList = ({ items, expectedFood, onAddExpiration }: FoodListProps) => {
+export const FoodList = ({ items, expectedFood, onAddExpiration, onRemoveExpiration }: FoodListProps) => {
   if (items.length === 0) return null;
 
   const expectedNormalized = expectedFood.map(normalizeFoodName);
@@ -42,9 +43,14 @@ export const FoodList = ({ items, expectedFood, onAddExpiration }: FoodListProps
               <div style={{ marginTop: "8px" }}>
                 <input
                   type="date"
-                  onChange={(e) =>
-                    onAddExpiration(food.item, e.target.value)
-                  }
+                  onChange={(e) => {
+                    const dateValue = e.target.value;
+                    if (dateValue) {
+                      onAddExpiration(food.item, dateValue);
+                    } else {
+                      onRemoveExpiration(food.item);
+                    }
+                  }}
                 />
               </div>
             </li>
