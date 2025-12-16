@@ -25,13 +25,14 @@ export const FoodList = ({ items, expectedFood, onAddExpiration }: FoodListProps
           return (
             <li key={index} style={{
               background: "#f9f9f9",
+              color: "#666",
               margin: "10px 0",
               padding: "10px",
               borderRadius: "8px",
               border: "1px solid #eee"
             }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "1.1rem" }}>
+                <span style={{ fontSize: "1.2rem" }}>
                   {isExpected && <FaCheckSquare color="#11b851" style={{ marginRight: "6px" }} />}
                   <strong>{food.item}</strong>
                 </span>

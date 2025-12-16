@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ImCross } from 'react-icons/im';
+import { LuClipboardList } from "react-icons/lu";
 
 interface ExpectedFoodManagerProps {
   items: string[];
@@ -23,7 +24,7 @@ export const ExpectedFoodManager = ({ items, onAdd, onRemove }: ExpectedFoodMana
 
   return (
     <div style={{ marginBottom: "30px", textAlign: "left" }}>
-      <h2>📋 My Fridge List</h2>
+      <h2><LuClipboardList /> My Fridge List</h2>
 
       {/* Input Section */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
@@ -60,7 +61,7 @@ export const ExpectedFoodManager = ({ items, onAdd, onRemove }: ExpectedFoodMana
               paddingLeft: "12px"
             }}
           >
-            <span>{item}</span>
+            <span style={{fontSize : "1.2rem"}}><strong>{item}</strong></span>
             <button
               onClick={() => onRemove(item)}
               style={{ border: "none", background: "transparent", color: "#e53935", fontSize: "1.1rem", cursor: "pointer" }}

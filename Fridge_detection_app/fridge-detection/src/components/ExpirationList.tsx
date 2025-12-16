@@ -1,3 +1,6 @@
+import { FaRegCalendarAlt } from "react-icons/fa";
+import { IoIosWarning } from "react-icons/io";
+
 interface ExpiringItem {
   name: string;
   expirationDate: string;
@@ -8,25 +11,10 @@ interface ExpirationListProps {
 }
 
 export const ExpirationList = ({ items }: ExpirationListProps) => {
-  <div style={{ textAlign: "left" }}>
-  <h2>📆 Expiration Dates</h2>
-  {items.length === 0 ? (
-    <p style={{ color: "#999" }}>No expiration dates yet</p>
-  ) : (
-    <ul style={{ listStyle: "none", padding: 0 }}>
-      {items.map((item, index) => (
-        <li key={index}>
-          <strong>{item.name}</strong> – {item.expirationDate}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
-
+  
   const today = new Date();
 
-  // Calcul des alertes
+  // Alert calculation
   const alerts = items
     .map(item => {
       const expDate = new Date(item.expirationDate);
@@ -39,33 +27,36 @@ export const ExpirationList = ({ items }: ExpirationListProps) => {
 
   return (
     <div style={{ textAlign: "left" }}>
-      <h2>📆 Expiration Dates</h2>
+      <h2><FaRegCalendarAlt /> Expiration Dates</h2>
+      {items.length === 0 ? (
+        <p style={{ color: "#999" }}>No expiration dates yet</p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {items.map((item, index) => (
+            <li
+              key={index}
+              style={{
+                background: "#f9f9f9",
+                color: "#666",
+                margin: "8px 0",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #eee"
+              }}
+            >
+              <strong style={{fontSize : "1.2rem"}}>{item.name}</strong>
+              <br />
+              Expires on: {item.expirationDate}
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {/* LISTE DES DATES */}
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {items.map((item, index) => (
-          <li
-            key={index}
-            style={{
-              background: "#f9f9f9",
-              margin: "8px 0",
-              padding: "10px",
-              borderRadius: "8px",
-              border: "1px solid #eee"
-            }}
-          >
-            <strong>{item.name}</strong>
-            <br />
-            Expires on: {item.expirationDate}
-          </li>
-        ))}
-      </ul>
-
-      {/* ALERTES */}
+      {/* Alerts */}
       {alerts.length > 0 && (
         <>
           <h3 style={{ marginTop: "20px", color: "#d32f2f" }}>
-            ⚠️ Expiring Soon
+            <IoIosWarning style={{color : "#fdda0d"}}/> Expiring Soon
           </h3>
 
           <ul style={{ listStyle: "none", padding: 0 }}>
@@ -81,7 +72,7 @@ export const ExpirationList = ({ items }: ExpirationListProps) => {
                   border: "1px solid #ffeeba"
                 }}
               >
-                ⚠️ <strong>{item.name}</strong>{" "}
+                <IoIosWarning style={{color : "#666"}}/> <strong>{item.name}</strong>{" "}
                 {item.diffDays === 0
                   ? "expires today!"
                   : item.diffDays === 1
@@ -93,5 +84,6 @@ export const ExpirationList = ({ items }: ExpirationListProps) => {
         </>
       )}
     </div>
+    
   );
 };
