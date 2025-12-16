@@ -7,3 +7,8 @@ export interface ScanResponse {
   food_found: FoodItem[];
   missing_food: string[];
 }
+
+export interface ExpiringItem {
+  name: string;
+  expirationDate: string; // format ISO "2025-12-20"
+}

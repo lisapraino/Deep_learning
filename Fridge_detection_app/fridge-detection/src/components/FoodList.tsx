@@ -5,9 +5,10 @@ import { normalizeFoodName } from '../normalizeFood';
 interface FoodListProps {
   items: FoodItem[];
   expectedFood: string[];
+  onAddExpiration: (item: string, date: string) => void;
 }
 
-export const FoodList = ({ items, expectedFood }: FoodListProps) => {
+export const FoodList = ({ items, expectedFood, onAddExpiration }: FoodListProps) => {
   if (items.length === 0) return null;
 
   const expectedNormalized = expectedFood.map(normalizeFoodName);
@@ -27,16 +28,24 @@ export const FoodList = ({ items, expectedFood }: FoodListProps) => {
               margin: "10px 0",
               padding: "10px",
               borderRadius: "8px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
               border: "1px solid #eee"
             }}>
-              <span style={{ color: "#666", fontSize: "1.2rem" }}>
-                {isExpected && <FaCheckSquare color="#11b851" style={{ marginRight: "8px" }} />}
-                <strong>{food.item}</strong>
-              </span>
-              <span>{(food.confidence * 100).toFixed(0)}%</span>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "1.1rem" }}>
+                  {isExpected && <FaCheckSquare color="#11b851" style={{ marginRight: "6px" }} />}
+                  <strong>{food.item}</strong>
+                </span>
+                <span>{(food.confidence * 100).toFixed(0)}%</span>
+              </div>
+
+              <div style={{ marginTop: "8px" }}>
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    onAddExpiration(food.item, e.target.value)
+                  }
+                />
+              </div>
             </li>
           );
         })}

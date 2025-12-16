@@ -12,6 +12,7 @@ import { MissingFoodList } from './components/MissingFoodList';
 import { ReloadButton } from './components/ReloadButton';
 
 import { normalizeFoodName } from './normalizeFood';
+import { ExpirationList } from './components/ExpirationList';
 
 function App() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -19,6 +20,7 @@ function App() {
   const [missingFood, setMissingFood] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [expiringFood, setExpiringFood] = useState<ExpiringFood[]>([]);
 
   const [expectedFood, setExpectedFood] = useState<string[]>(() => {
     const saved = localStorage.getItem("expectedFood");
@@ -92,38 +94,61 @@ function App() {
     if (selectedFile) processImage(selectedFile);
   };
 
+  const handleAddExpiration = (item: string, date: string) => {
+  if (!date) return;
+
+  setExpiringFood(prev => {
+    const updated = prev.filter(f => f.name !== item); // ⚠️ utiliser "name" ici
+    return [...updated, { name: item, expirationDate: date }]; // ⚠️ clé "name"
+  });
+};
+
+
   /* ---------- UI ---------- */
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
-      <h1 style={{ textAlign: "center" }}>🧊 Fridge Scanner</h1>
+    <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "1fr 2fr 1fr",
+    gap: "30px",
+    marginTop: "30px"
+  }}
+>
+  {/* 🟩 COLONNE GAUCHE */}
+  <div>
+    <ExpectedFoodManager
+      items={expectedFood}
+      onAdd={handleAddExpected}
+      onRemove={handleRemoveExpected}
+    />
+  </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 2fr",
-          gap: "30px",
-          marginTop: "30px"
-        }}
-      >
-        {/* LEFT COLUMN */}
-        <ExpectedFoodManager
-          items={expectedFood}
-          onAdd={handleAddExpected}
-          onRemove={handleRemoveExpected}
-        />
+  {/* 🟦 COLONNE MILIEU */}
+  <div>
+    <ImageUploader onFileSelect={handleFileSelect} disabled={loading} />
 
-        {/* RIGHT COLUMN */}
-        <div>
-          <ImageUploader onFileSelect={handleFileSelect} disabled={loading} />
-          <ImagePreview imageSrc={selectedImage} />
-          {loading && <p>🔍 Analyzing your fridge...</p>}
-          <ReloadButton onButtonClick={handleReloadClick} />
-          <FoodList items={foodItems} expectedFood={expectedFood} />
-          <MissingFoodList items={missingFood} />
-        </div>
-      </div>
-    </div>
+    <ImagePreview imageSrc={selectedImage} />
+
+    {loading && <p>🔍 Analyzing your fridge...</p>}
+
+    <ReloadButton onButtonClick={handleReloadClick} />
+
+    <FoodList
+      items={foodItems}
+      expectedFood={expectedFood}
+      onAddExpiration={handleAddExpiration}
+    />
+
+    <MissingFoodList items={missingFood} />
+  </div>
+
+  {/* 🟥 COLONNE DROITE */}
+  <div>
+    <ExpirationList items={expiringFood} />
+  </div>
+</div>
+
   );
 }
 
