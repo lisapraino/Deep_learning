@@ -1,0 +1,28 @@
+services:
+  # 1. Frontend Service (React)
+  frontend:
+    # Build the image using the Dockerfile located in the frontend directory
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fridge-scanner-frontend
+    ports:
+      # Map container port 80 to host port 3000 (access via http://localhost:3000)
+      - "3000:80" 
+
+  # 2. Backend Service (Python API)
+  backend:
+    # Build the image using the Dockerfile located in the backend directory
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fridge-scanner-backend
+    ports:
+      # Host Port : Container Port
+      - "8000:8000"
+    # Ensures frontend waits for backend
+    depends_on:
+      - frontend
+networks:
+  default:
+    # Automatically set up a network named 'default'

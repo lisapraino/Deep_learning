@@ -6,9 +6,16 @@ import io
 import pathlib
 import json
 
-pathlib.PosixPath = pathlib.WindowsPath
+# Uncomment this line when runnning on Windows
+# pathlib.PosixPath = pathlib.WindowsPath
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",  # Browser origin
+    "http://127.0.0.1:3000",  # Localhost alias
+    "http://backend:8000"     # Internal Docker origin
+]
 
 # CORS
 app.add_middleware(
@@ -28,11 +35,6 @@ async def scan_fridge(
     file: UploadFile = File(...),
     expected_items: str = Form(...)
 ):
-    """
-    expected_items = JSON string
-    Example: ["milk", "eggs", "cheese"]
-    """
-
     # Convert expected items from JSON string to Python list
     expected_items_list = json.loads(expected_items)
     expected_items_list = [item.lower() for item in expected_items_list]

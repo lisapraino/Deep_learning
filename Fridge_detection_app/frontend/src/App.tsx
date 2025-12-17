@@ -64,7 +64,7 @@ function App() {
 
     try {
       const response = await axios.post<ScanResponse>(
-        "http://127.0.0.1:8000/scan-fridge",
+        "http://localhost:8000/scan-fridge",
         formData
       );
       setFoodItems(response.data.food_found);
